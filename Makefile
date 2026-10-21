@@ -1,6 +1,6 @@
 export PYGAME_HIDE_SUPPORT_PROMPT = 1
 UV ?= uv
-MAP ?=
+MAP ?= maps/my_map.txt
 
 .DEFAULT_GOAL := install
 
@@ -10,10 +10,10 @@ install:
 	@$(UV) sync --locked
 
 run:
-	@$(UV) run --locked python main.py $(if $(MAP),"$(MAP)")
+	@$(UV) run --locked python fly_in.py "$(MAP)"
 
 debug:
-	@$(UV) run --locked python -m pdb main.py $(if $(MAP),"$(MAP)")
+	@$(UV) run --locked python -m pdb fly_in.py "$(MAP)"
 
 clean:
 	@rm -rf .venv .mypy_cache .pytest_cache __pycache__ */__pycache__
