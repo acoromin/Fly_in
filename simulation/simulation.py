@@ -1,0 +1,55 @@
+from graph import Graph, Hub, Connection
+from simulation import Drone
+
+
+class Simulation:
+    """Advance planned drone itineraries one discrete turn at a time."""
+
+    def __init__(self, graph: Graph, drones: list[Drone]) -> None:
+        """Store the graph and drones with the initial state at turn zero."""
+        self.graph = graph
+        self.drones = drones
+        self.turn = 0
+
+    def is_finished(self) -> bool:
+        """Return whether every drone has reached its destination."""
+        return all(
+                drone.is_delivered(self.turn) for drone in self.drones
+                )
+
+    def rewind(self) -> None:
+        """Return to the previous completed turn, stopping at turn zero."""
+        self.turn = max(0, self.turn - 1)
+
+    def reset(self) -> None:
+        """Return to the initial turn without changing planned itineraries."""
+        self.turn = 0
+
+    def step(self) -> list[tuple[Drone, Hub | Connection]]:
+        """Advance one turn; return moved drones with hubs or connections.
+
+        Waiting and previously delivered drones are omitted.
+        """
+        if self.is_finished():
+            return []
+        self.turn += 1
+        movements: list[tuple[Drone, Hub | Connection]] = []
+        for drone in self.drones:
+            if drone.is_delivered(self.turn - 1):
+                continue
+            current_hub = drone.get_hub_at_turn(self.turn)
+            if current_hub is not None:
+                if current_hub is drone.get_hub_at_turn(self.turn - 1):
+                    continue
+                movements.append((drone, current_hub))
+            else:
+                current_connection = drone.get_connection_at_turn(
+                    self.turn, self.graph
+                    )
+                if current_connection is None:
+                    raise ValueError(
+                            f"Drone {drone.id}: invalid connection at "
+                            f"turn {self.turn}"
+                            )
+                movements.append((drone, current_connection))
+        return movements
