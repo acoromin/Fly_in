@@ -29,9 +29,7 @@ def main() -> int:
 
         graph = Graph(validated_map)
         planner = Planner(graph)
-        itineraries = planner.plan_itineraries(
-            validated_map.nb_drones
-        )
+        itineraries = planner.plan_itineraries(validated_map.nb_drones)
 
         if not itineraries:
             print(
